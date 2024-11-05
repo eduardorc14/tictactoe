@@ -17,7 +17,7 @@ private:
     char winner; // Vencedor do jogo
 
 public:
-    TicTacToe() : current_player('X'), game_over(false), winner(' ') {
+    TicTacToe() : current_player('O'), game_over(false), winner(' ') {
         for (auto& row : board) {
             row.fill(' ');
         }
@@ -28,17 +28,26 @@ public:
         std::lock_guard<std::mutex> lock(board_mutex);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                std::cout << (board[i][j] == ' ' ? '.' : board[i][j]) << " ";
+                std::cout << (board[i][j] == ' ' ? '.' : board[i][j]);
+                if (j < 2) std::cout << " | "; // Adiciona divisores entre colunas
             }
             std::cout << std::endl;
+            if (i < 2) std::cout << "--+---+--" << std::endl; // Adiciona divisores entre linhas
         }
-    }
+    std::cout << std::endl;
+}
+
+    
 
     bool make_move(char player, int row, int col) {
         // Implementar a lógica para realizar uma jogada no tabuleiro
         // Utilizar mutex para controle de acesso
         // Utilizar variável de condição para alternância de turnos
         std::unique_lock<std::mutex> lock(board_mutex);
+
+        if (game_over) {
+            return true;
+        }
 
         while(player != current_player){
             turn_cv.wait(lock);
@@ -156,7 +165,7 @@ int main() {
     // Inicializar o jogo e os jogadores
     TicTacToe game;
 
-    Player player1(game, 'X', "random");
+    Player player1(game, 'X', "sequential");
     Player player2(game, 'O', "random");
 
     // Criar as threads para os jogadores
